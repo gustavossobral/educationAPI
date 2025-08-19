@@ -1,7 +1,9 @@
 package br.com.github.gustavossobral.educational_api.domain.professor;
 
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
+import br.com.github.gustavossobral.educational_api.domain.professor.dto.CadastrarProfessorDTO;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.*;
 
 @Entity(name = "Professor")
@@ -26,4 +28,12 @@ public class ProfessorEntity {
 
     private boolean ativo = true;
 
+    public ProfessorEntity(@Valid CadastrarProfessorDTO dto) {
+        this.nome = dto.nome();
+        this.cpf = dto.cpf();
+        this.email = dto.email();
+        this.materia = dto.materia();
+        this.telefone = dto.telefone();
+        this.endereco = new Endereco(dto.endereco());
+    }
 }
