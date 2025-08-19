@@ -1,14 +1,14 @@
 package br.com.github.gustavossobral.educational_api.domain.aluno;
 
+import br.com.github.gustavossobral.educational_api.domain.aluno.dto.AtualizarAlunoDTO;
 import br.com.github.gustavossobral.educational_api.domain.aluno.dto.CadastrarAlunoDTO;
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
-import br.com.github.gustavossobral.educational_api.domain.endereco.dto.CadastroEnderecoDTO;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
 
 @Entity(name = "Aluno")
-@Table(name = "aluno")
+@Table(name = "alunos")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,5 +35,22 @@ public class AlunoEntity {
         this.matricula = dto.matricula();
         this.telefone = dto.telefone();
         this.endereco = new Endereco(dto.endereco());
+    }
+
+    public void atualizar(@Valid AtualizarAlunoDTO dto) {
+
+        if (dto.nome() != null){
+            this.nome = dto.nome();
+        }
+        if (dto.email() != null){
+            this.email = dto.email();
+        }
+        if (dto.telefone() != null){
+            this.telefone = dto.telefone();
+        }
+        if (dto.endereco() != null){
+            this.endereco.atualizar(dto.endereco());
+        }
+
     }
 }
