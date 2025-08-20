@@ -1,6 +1,7 @@
 package br.com.github.gustavossobral.educational_api.domain.professor;
 
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
+import br.com.github.gustavossobral.educational_api.domain.professor.dto.AtualizarProfessorDTO;
 import br.com.github.gustavossobral.educational_api.domain.professor.dto.CadastrarProfessorDTO;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -35,5 +36,25 @@ public class ProfessorEntity {
         this.materia = dto.materia();
         this.telefone = dto.telefone();
         this.endereco = new Endereco(dto.endereco());
+    }
+
+    public void atualizar(@Valid AtualizarProfessorDTO dto) {
+
+        if(dto.nome() != null) {
+            this.nome = dto.nome();
+        }
+
+        if(dto.email() != null) {
+            this.email = dto.email();
+        }
+
+        if(dto.telefone() != null) {
+            this.telefone = dto.telefone();
+        }
+
+        if(dto.endereco() != null) {
+            this.endereco.atualizar(dto.endereco());
+        }
+
     }
 }
