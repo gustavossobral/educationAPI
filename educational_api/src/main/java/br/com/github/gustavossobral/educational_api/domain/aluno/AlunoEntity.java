@@ -3,9 +3,13 @@ package br.com.github.gustavossobral.educational_api.domain.aluno;
 import br.com.github.gustavossobral.educational_api.domain.aluno.dto.AtualizarAlunoDTO;
 import br.com.github.gustavossobral.educational_api.domain.aluno.dto.CadastrarAlunoDTO;
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
+import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "Aluno")
 @Table(name = "alunos")
@@ -26,6 +30,9 @@ public class AlunoEntity {
     private Endereco endereco;
 
     private boolean ativo = true;
+
+    @ManyToMany(mappedBy = "alunos", cascade = CascadeType.ALL)
+    private Set<TurmaEntity> turmas = new HashSet<>();
 
     public AlunoEntity(@Valid CadastrarAlunoDTO dto) {
 

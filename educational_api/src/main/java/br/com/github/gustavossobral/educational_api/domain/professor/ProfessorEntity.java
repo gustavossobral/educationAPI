@@ -3,6 +3,7 @@ package br.com.github.gustavossobral.educational_api.domain.professor;
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
 import br.com.github.gustavossobral.educational_api.domain.professor.dto.AtualizarProfessorDTO;
 import br.com.github.gustavossobral.educational_api.domain.professor.dto.CadastrarProfessorDTO;
+import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -28,6 +29,9 @@ public class ProfessorEntity {
     private Endereco endereco;
 
     private boolean ativo = true;
+
+    @OneToOne(mappedBy = "professor")
+    private TurmaEntity turma;
 
     public ProfessorEntity(@Valid CadastrarProfessorDTO dto) {
         this.nome = dto.nome();
