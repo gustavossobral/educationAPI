@@ -4,6 +4,7 @@ import br.com.github.gustavossobral.educational_api.domain.aluno.dto.AtualizarAl
 import br.com.github.gustavossobral.educational_api.domain.aluno.dto.CadastrarAlunoDTO;
 import br.com.github.gustavossobral.educational_api.domain.endereco.Endereco;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
+import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaEntity;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -16,7 +17,7 @@ import java.util.Set;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"id"})
 public class AlunoEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,9 @@ public class AlunoEntity {
 
     @ManyToMany(mappedBy = "alunos", cascade = CascadeType.ALL)
     private Set<TurmaEntity> turmas = new HashSet<>();
+
+    @OneToMany(mappedBy = "aluno",cascade = CascadeType.ALL)
+    private Set<MatriculaEntity> matriculas = new HashSet<>();
 
     public AlunoEntity(@Valid CadastrarAlunoDTO dto) {
 

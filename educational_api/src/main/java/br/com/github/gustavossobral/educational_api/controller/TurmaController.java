@@ -1,9 +1,14 @@
 package br.com.github.gustavossobral.educational_api.controller;
 
+import br.com.github.gustavossobral.educational_api.domain.aluno.AlunoRepository;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaRepository;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.CriarTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.DetalharTurmaDTO;
+import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaEntity;
+import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaRepository;
+import br.com.github.gustavossobral.educational_api.domain.turma.matricula.dto.SolicitarMatriculaDTO;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +22,19 @@ import java.net.URI;
 public class TurmaController {
 
     @Autowired
-    private TurmaRepository repository;
+    private MatriculaRepository matriculaRepository;
+
+    @Autowired
+    private AlunoRepository alunoRepository;
+
+    @Autowired
+    private TurmaRepository turmaRepository;
 
     @PostMapping
     @Transactional
     public ResponseEntity criar(@RequestBody @Valid CriarTurmaDTO dto){
         var turma = new TurmaEntity(dto);
-        repository.save(turma);
+        turmaRepository.save(turma);
 
         var uri = URI.create("/turma/" + turma.getId());
 
@@ -32,11 +43,26 @@ public class TurmaController {
 
     @GetMapping("/{id}")
     public ResponseEntity detalhar(@PathVariable Long id){
-        var turma = repository.getReferenceById(id);
+        var turma = turmaRepository.getReferenceById(id);
 
         var response = new DetalharTurmaDTO(turma);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/matricula")
+    @Transactional
+    public ResponseEntity solicitarMatricula(@RequestBody @Valid SolicitarMatriculaDTO dto){
+        var aluno = alunoRepository.findById(dto.idAluno()).orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado!"));
+        var turma = turmaRepository.findById(dto.idTurma()).orElseThrow(() -> new EntityNotFoundException("Turma não encontrada!"));
+        var matricula = new MatriculaEntity();
+
+        matricula.setTurma(turma);
+        matricula.setAluno(aluno);
+
+        matriculaRepository.save(matricula);
+
+        return ResponseEntity.ok("solicitação feita com sucesso!");
     }
 
 }
