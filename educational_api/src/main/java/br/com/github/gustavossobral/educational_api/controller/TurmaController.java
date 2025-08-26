@@ -57,7 +57,7 @@ public class TurmaController {
         return ResponseEntity.ok("solicitação feita com sucesso!");
     }
 
-    @GetMapping("/matriculas/listar")
+    @GetMapping("/matricula/listar")
     public ResponseEntity listarSolicitacoesMatriculas(){
         var matriculas = matriculaRepository.findAll();
 
@@ -78,6 +78,28 @@ public class TurmaController {
         var response = new DetalharTurmaDTO(turma);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/matricula/{id}")
+    @Transactional
+    public ResponseEntity<String> aceitarSolicitacaoMatricula(@PathVariable Long id) {
+        var solicitacao = matriculaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Solicitação não existente."));
+
+        var turma = turmaRepository.findById(solicitacao.getTurma().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada"));
+        var aluno = alunoRepository.findById(solicitacao.getAluno().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado"));
+
+        turma.getAlunos().add(aluno);
+        aluno.getTurmas().add(turma);
+
+        turmaRepository.save(turma);
+        alunoRepository.save(aluno);
+
+        matriculaRepository.delete(solicitacao);
+
+        return ResponseEntity.ok("Solicitação aceita com sucesso!");
     }
 
 }
