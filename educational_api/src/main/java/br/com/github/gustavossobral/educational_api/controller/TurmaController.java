@@ -7,6 +7,7 @@ import br.com.github.gustavossobral.educational_api.domain.turma.dto.CriarTurmaD
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.DetalharTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaRepository;
+import br.com.github.gustavossobral.educational_api.domain.turma.matricula.dto.ListarSolicitacoesMatriculasDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.dto.SolicitarMatriculaDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -41,15 +42,6 @@ public class TurmaController {
         return ResponseEntity.created(uri).body("Turma de " + turma.getMateria() + " criada com sucesso!");
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity detalhar(@PathVariable Long id){
-        var turma = turmaRepository.getReferenceById(id);
-
-        var response = new DetalharTurmaDTO(turma);
-
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/matricula")
     @Transactional
     public ResponseEntity solicitarMatricula(@RequestBody @Valid SolicitarMatriculaDTO dto){
@@ -63,6 +55,29 @@ public class TurmaController {
         matriculaRepository.save(matricula);
 
         return ResponseEntity.ok("solicitação feita com sucesso!");
+    }
+
+    @GetMapping("/matriculas/listar")
+    public ResponseEntity listarSolicitacoesMatriculas(){
+        var matriculas = matriculaRepository.findAll();
+
+        matriculas.forEach(m -> {
+            m.setAluno(alunoRepository.getReferenceById(m.getAluno().getId()));
+            m.setTurma(turmaRepository.getReferenceById(m.getTurma().getId()));
+        });
+
+        var response = matriculas.stream().map(ListarSolicitacoesMatriculasDTO::new).toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity detalhar(@PathVariable Long id){
+        var turma = turmaRepository.getReferenceById(id);
+
+        var response = new DetalharTurmaDTO(turma);
+
+        return ResponseEntity.ok(response);
     }
 
 }
