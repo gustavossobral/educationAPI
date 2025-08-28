@@ -5,6 +5,7 @@ import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaRepository;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.CriarTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.DetalharTurmaDTO;
+import br.com.github.gustavossobral.educational_api.domain.turma.dto.RemoverAlunoDaTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaRepository;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.dto.ListarSolicitacoesMatriculasDTO;
@@ -101,5 +102,27 @@ public class TurmaController {
 
         return ResponseEntity.ok("Solicitação aceita com sucesso!");
     }
+
+    @DeleteMapping("/remover-aluno")
+    @Transactional
+    public ResponseEntity removerAlunoDaTurma(@RequestBody @Valid RemoverAlunoDaTurmaDTO dto){
+
+        var aluno = alunoRepository.findById(dto.idAluno()).orElseThrow(()-> new EntityNotFoundException("Aluno não encontrado."));
+        var turma = turmaRepository.findById(dto.idTurma()).orElseThrow(()-> new EntityNotFoundException("Turma não encontrada."));
+
+        turma.getAlunos().remove(aluno);
+        aluno.getTurmas().remove(turma);
+
+        turmaRepository.save(turma);
+        alunoRepository.save(aluno);
+
+        return ResponseEntity.ok("Aluno " + aluno.getNome() + " removido da turma " + turma.getId() + " com sucesso!");
+    }
+
+    //colocar professor na turma
+
+    //remover professor da turma
+
+    //excluir turma
 
 }

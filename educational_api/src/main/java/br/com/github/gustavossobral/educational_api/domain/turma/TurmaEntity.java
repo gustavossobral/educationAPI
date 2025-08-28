@@ -5,6 +5,7 @@ import br.com.github.gustavossobral.educational_api.domain.professor.Materia;
 import br.com.github.gustavossobral.educational_api.domain.professor.ProfessorEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.CriarTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.matricula.MatriculaEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -32,6 +33,7 @@ public class TurmaEntity {
     @JoinColumn(name = "professor_id", unique = true)
     private ProfessorEntity professor;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "turma_alunos",
@@ -40,6 +42,7 @@ public class TurmaEntity {
     )
     private Set<AlunoEntity> alunos = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "turma", cascade = CascadeType.ALL)
     private Set<MatriculaEntity> matriculas = new HashSet<>();
 
