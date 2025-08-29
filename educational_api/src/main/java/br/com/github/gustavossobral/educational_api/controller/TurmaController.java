@@ -1,8 +1,10 @@
 package br.com.github.gustavossobral.educational_api.controller;
 
 import br.com.github.gustavossobral.educational_api.domain.aluno.AlunoRepository;
+import br.com.github.gustavossobral.educational_api.domain.professor.ProfessorRepository;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaEntity;
 import br.com.github.gustavossobral.educational_api.domain.turma.TurmaRepository;
+import br.com.github.gustavossobral.educational_api.domain.turma.dto.AdicionarProfessorNaTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.CriarTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.DetalharTurmaDTO;
 import br.com.github.gustavossobral.educational_api.domain.turma.dto.RemoverAlunoDaTurmaDTO;
@@ -31,6 +33,8 @@ public class TurmaController {
 
     @Autowired
     private TurmaRepository turmaRepository;
+    @Autowired
+    private ProfessorRepository professorRepository;
 
     @PostMapping
     @Transactional
@@ -81,7 +85,7 @@ public class TurmaController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/matricula/{id}")
+    @PutMapping("/matricula/{id}")
     @Transactional
     public ResponseEntity<String> aceitarSolicitacaoMatricula(@PathVariable Long id) {
         var solicitacao = matriculaRepository.findById(id)
@@ -119,9 +123,36 @@ public class TurmaController {
         return ResponseEntity.ok("Aluno " + aluno.getNome() + " removido da turma " + turma.getId() + " com sucesso!");
     }
 
-    //colocar professor na turma
+    @PutMapping("/adicionar-professor")
+    @Transactional
+    public ResponseEntity adicionarProfessorNaTurma(@RequestBody @Valid AdicionarProfessorNaTurmaDTO dto){
+        var professor = professorRepository.findById(dto.idProfessor()).orElseThrow(()-> new EntityNotFoundException("Professor não encontrado."));
+        var turma = turmaRepository.findById(dto.idTurma()).orElseThrow(()-> new EntityNotFoundException("Turma não encontrada."));
 
-    //remover professor da turma
+        turma.setProfessor(professor);
+        professor.setTurma(turma);
+
+        professorRepository.save(professor);
+        turmaRepository.save(turma);
+
+        return ResponseEntity.ok("Professor(a) " + professor.getNome() + " adicionado(a) a turma " + turma.getId() + " com sucesso!");
+    }
+
+
+    @DeleteMapping("/remover-professor/{id}")
+    @Transactional
+    public ResponseEntity removerProfessorNaTurma(@PathVariable Long id){
+        var turma = turmaRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Turma não encontrada."));
+        var professor = professorRepository.findById(turma.getProfessor().getId()).orElseThrow(()-> new EntityNotFoundException("Professor não encontrado."));
+
+        turma.setProfessor(null);
+        professor.setTurma(null);
+
+        professorRepository.save(professor);
+        turmaRepository.save(turma);
+
+        return ResponseEntity.ok("Professor(a) da turma " + turma.getId() + " foi removido com sucesso!");
+    }
 
     //excluir turma
 
