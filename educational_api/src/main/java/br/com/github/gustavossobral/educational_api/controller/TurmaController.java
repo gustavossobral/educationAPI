@@ -154,6 +154,12 @@ public class TurmaController {
         return ResponseEntity.ok("Professor(a) da turma " + turma.getId() + " foi removido com sucesso!");
     }
 
-    //excluir turma
+    @DeleteMapping("/excluir-turma/{id}")
+    public ResponseEntity excluirTurma(@PathVariable Long id){
+        var turma = turmaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Turma não encontrada."));
+        turmaRepository.delete(turma);
+
+        return ResponseEntity.ok("Turma " + turma.getId() + " excluida com sucesso!");
+    }
 
 }

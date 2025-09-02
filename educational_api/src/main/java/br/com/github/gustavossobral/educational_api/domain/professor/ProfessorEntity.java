@@ -30,7 +30,7 @@ public class ProfessorEntity {
 
     private boolean ativo = true;
 
-    @OneToOne(mappedBy = "professor")
+    @OneToOne(mappedBy = "professor", orphanRemoval = true)
     private TurmaEntity turma;
 
     public ProfessorEntity(@Valid CadastrarProfessorDTO dto) {

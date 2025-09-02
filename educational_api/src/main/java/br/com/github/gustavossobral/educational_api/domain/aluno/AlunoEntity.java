@@ -32,7 +32,7 @@ public class AlunoEntity {
 
     private boolean ativo = true;
 
-    @ManyToMany(mappedBy = "alunos", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "alunos")
     private Set<TurmaEntity> turmas = new HashSet<>();
 
     @OneToMany(mappedBy = "aluno",cascade = CascadeType.ALL)
