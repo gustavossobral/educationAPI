@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class TurmaController {
 
     @PostMapping
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity criar(@RequestBody @Valid CriarTurmaDTO dto){
         var turma = new TurmaEntity(dto);
         turmaRepository.save(turma);
@@ -49,6 +51,7 @@ public class TurmaController {
 
     @PostMapping("/matricula")
     @Transactional
+    @PreAuthorize("hasAnyRole('ESTUDANTE','ADMIN')")
     public ResponseEntity solicitarMatricula(@RequestBody @Valid SolicitarMatriculaDTO dto){
         var aluno = alunoRepository.findById(dto.idAluno()).orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado!"));
         var turma = turmaRepository.findById(dto.idTurma()).orElseThrow(() -> new EntityNotFoundException("Turma não encontrada!"));
@@ -63,6 +66,7 @@ public class TurmaController {
     }
 
     @GetMapping("/matricula/listar")
+    @PreAuthorize("hasAnyRole('PROFESSOR','ADMIN')")
     public ResponseEntity listarSolicitacoesMatriculas(){
         var matriculas = matriculaRepository.findAll();
 
@@ -77,8 +81,9 @@ public class TurmaController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ESTUDANTE','PROFESSOR','ADMIN')")
     public ResponseEntity detalhar(@PathVariable Long id){
-        var turma = turmaRepository.getReferenceById(id);
+        var turma = turmaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Turma não encontrada."));
 
         var response = new DetalharTurmaDTO(turma);
 
@@ -87,6 +92,7 @@ public class TurmaController {
 
     @PutMapping("/matricula/{id}")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> aceitarSolicitacaoMatricula(@PathVariable Long id) {
         var solicitacao = matriculaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não existente."));
@@ -109,6 +115,7 @@ public class TurmaController {
 
     @DeleteMapping("/remover-aluno")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity removerAlunoDaTurma(@RequestBody @Valid RemoverAlunoDaTurmaDTO dto){
 
         var aluno = alunoRepository.findById(dto.idAluno()).orElseThrow(()-> new EntityNotFoundException("Aluno não encontrado."));
@@ -125,6 +132,7 @@ public class TurmaController {
 
     @PutMapping("/adicionar-professor")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity adicionarProfessorNaTurma(@RequestBody @Valid AdicionarProfessorNaTurmaDTO dto){
         var professor = professorRepository.findById(dto.idProfessor()).orElseThrow(()-> new EntityNotFoundException("Professor não encontrado."));
         var turma = turmaRepository.findById(dto.idTurma()).orElseThrow(()-> new EntityNotFoundException("Turma não encontrada."));
@@ -141,6 +149,7 @@ public class TurmaController {
 
     @DeleteMapping("/remover-professor/{id}")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity removerProfessorNaTurma(@PathVariable Long id){
         var turma = turmaRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Turma não encontrada."));
         var professor = professorRepository.findById(turma.getProfessor().getId()).orElseThrow(()-> new EntityNotFoundException("Professor não encontrado."));
@@ -155,11 +164,14 @@ public class TurmaController {
     }
 
     @DeleteMapping("/excluir-turma/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity excluirTurma(@PathVariable Long id){
         var turma = turmaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Turma não encontrada."));
         turmaRepository.delete(turma);
 
         return ResponseEntity.ok("Turma " + turma.getId() + " excluida com sucesso!");
     }
+
+    //listar turmas
 
 }
